@@ -54,6 +54,7 @@ Rules:
 - Do not include explanations, introductions, markdown formatting, or extra text.
 - The JSON must be valid and machine-readable.
 - Only include a value for "message" if clarification is truly needed, or details are missing; otherwise, it should be an empty string.
+- The "skills" list values must be concise names of soft skills, hard skills, or technologies.
 
 Task path:
 "{path}"
@@ -86,6 +87,7 @@ def validateProcessedTasks(processedTasks):
     for processedTask in processedTasks:
         if 'message' in processedTask and processedTask['message'].strip() != "":
             print("Clarification needed:", processedTask['message'])
+            processedTask['userHasAddressedClarification'] = False
             semiProcessedTasksCollection.insert_one(processedTask)
         else:
             print("Processed task")
