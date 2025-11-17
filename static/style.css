@@ -1,0 +1,11 @@
+* {
+    width: 90%;
+    margin: auto;
+}
+
+.taskContainer > div {
+    background-color: lightgray;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>list629</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+    <h1>Post Task</h1>
+    <div id="taskFormContainer">
+        <form id="taskForm">
+            <input type="text" id="path" name="path" placeholder="Task path" required>
+            <input type="text" id="description" name="description" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const path = document.getElementById('path').value;
+            const description = document.getElementById('description').value;
+
+            fetch('http://localhost:8000/task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ path, description }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Task submitted successfully!');
+                document.getElementById('taskForm').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error submitting task.');
+            });
+        });
+    </script>
+</body>
+</html>

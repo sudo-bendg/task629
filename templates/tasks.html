@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+    <h1>Tasks</h1>
+    <div id="unprocessed">
+        <h2>Unprocessed</h2>
+        <div id="unprocessedContainer" class="taskContainer"></div>
+        <script>
+            const unprocessedTasks = fetch(
+                'http://localhost:8000/tasks/unprocessed'
+            ).then(response => response.json());
+            const unprocessedContainer = document.getElementById('unprocessedContainer');
+            unprocessedTasks.then(tasks => {
+                tasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.innerHTML =  `<h3>${task.description}</h3><p>${task.path}</p>`;
+                    unprocessedContainer.appendChild(taskDiv);
+                });
+            });
+        </script>
+    </div>
+    <div id="semiProcessed">
+        <h2>Semi-Processed</h2>
+        <div id="semiProcessedContainer" class="taskContainer">
+            <script>
+                const semiProcessedTasks = fetch(
+                    'http://localhost:8000/tasks/semiProcessed'
+                ).then(response => response.json());
+                const semiProcessedContainer = document.getElementById('semiProcessedContainer');
+                semiProcessedTasks.then(tasks => {
+                    tasks.forEach(task => {
+                        const taskDiv = document.createElement('div');
+                        taskDiv.innerHTML =  `<h3>${task.description}</h3>
+                        <p>${task.path}</p>
+                        <div>${task.skills.map(skill => {
+                            return `<span>${skill}</span>`;
+                        })}</div>
+                        <p>${task.message}</p>`;
+                        semiProcessedContainer.appendChild(taskDiv);
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    <div id="processed">
+        <h2>Processed</h2>
+        <div id="processedContainer" class="taskContainer"></div>
+        <script>
+            const processedTasks = fetch(
+                'http://localhost:8000/tasks/processed'
+            ).then(response => response.json());
+            const processedContainer = document.getElementById('processedContainer');
+            processedTasks.then(tasks => {
+                tasks.forEach(task => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.innerHTML =  `<h3>${task.description}</h3><p>${task.path}</p>
+                    <div>${task.skills.map(skill => {
+                        return `<span>${skill}</span>`;
+                    })}</div>`;
+                    processedContainer.appendChild(taskDiv);
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

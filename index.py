@@ -1,11 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import pymongo
 from bson import ObjectId
+import os
 
 from db import rawTaskCollection, semiProcessedTasksCollection, processedTaskCollection, closeDB
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 class TaskRequest(BaseModel):
     path: str
@@ -15,8 +21,12 @@ class AddressClarificationRequest(BaseModel):
     updatedSkills: list[str] = []
 
 @app.get("/")
-def hello():
-    return {"message": "Hello, World!"}
+def hello(request: Request):
+    return templates.TemplateResponse("submit.html", {"request": request})
+
+@app.get("/tasks")
+def viewTasks(request: Request):
+    return templates.TemplateResponse("tasks.html", {"request": request})
 
 @app.post("/task")
 def create_task(task: TaskRequest):
@@ -36,13 +46,46 @@ def create_task(task: TaskRequest):
         }
     }
     except pymongo.errors.PyMongoError as e:
+        print(f"Error creating task: {e}")
+        return {"error": str(e)}
+    
+@app.get("/tasks/processed")
+def getProcessedTasks():
+    try:
+        tasks = list(processedTaskCollection.find({}))
+        return [{
+            "id": str(task["_id"]),
+            "path": task["path"],
+            "description": task["description"],
+            "skills": task.get("skills", [])
+        } for task in tasks]
+    except pymongo.errors.PyMongoError as e:
         return {"error": str(e)}
 
 @app.get("/tasks/semiProcessed")
 def getSemiProcessedTasks():
     try:
         tasks = list(semiProcessedTasksCollection.find({"userHasAddressedClarification": False}))
-        return [str(task["_id"]) for task in tasks]
+        return [
+            {
+                "id": str(task["_id"]),
+                "path": task["path"],
+                "description": task["description"],
+                "skills": task.get("skills", []),
+                "message": task.get("message", "")
+            } for task in tasks]
+    except pymongo.errors.PyMongoError as e:
+        return {"error": str(e)}
+    
+@app.get("/tasks/unprocessed")
+def getUnprocessedTasks():
+    try:
+        tasks = list(rawTaskCollection.find({"managed": False}))
+        return [{
+            "id": str(task["_id"]),
+            "path": task["path"],
+            "description": task["description"]
+        } for task in tasks]
     except pymongo.errors.PyMongoError as e:
         return {"error": str(e)}
 
