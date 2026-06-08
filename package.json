@@ -1,0 +1,29 @@
+{
+  "name": "task629",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/sudo-bendg/task629#readme",
+  "bugs": {
+    "url": "https://github.com/sudo-bendg/task629/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudo-bendg/task629.git"
+  },
+  "license": "ISC",
+  "author": "Benjamin Godfrey",
+  "type": "commonjs",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "npx jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.2",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
+  }
+}
