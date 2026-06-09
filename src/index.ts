@@ -1,4 +1,4 @@
-import { Bot, TaskHandler } from './bot';
+import { Bot, TaskHandler } from './bot/bot';
 import dotenv from 'dotenv';
 
 dotenv.config();
