@@ -16,7 +16,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "start": "node .",
-    "test": "npx jest"
+    "test": "npx jest src/"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
