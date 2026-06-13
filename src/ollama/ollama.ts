@@ -1,13 +1,15 @@
 export class Ollama {
     url: string;
+    defaultModel: string;
 
-    constructor(ollamaUrl: string) {
+    constructor(ollamaUrl: string, model: string) {
         this.url = ollamaUrl;
+        this.defaultModel = model;
     }
 
-    async request(prompt: string, model: string) {
+    async request(prompt: string, model?: string) {
         const requestBody = {
-            model: model,
+            model: model || this.defaultModel,
             prompt: prompt,
             stream: false,
             think: false
