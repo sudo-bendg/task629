@@ -17,7 +17,7 @@ const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
     return skills;
 }
 
-const analyseNextTask = async (Ollama: Ollama): Promise<void> => {
+const analyseNextTask = async (ollama: Ollama): Promise<void> => {
     const taskToAnalyse = await Task.findOne({status: "NEW"});
     
     if (!taskToAnalyse) {
@@ -27,7 +27,7 @@ const analyseNextTask = async (Ollama: Ollama): Promise<void> => {
 
     console.log(`Analysing task: ${taskToAnalyse.description}`)
 
-    const skills: string[] = await analyseTask(taskToAnalyse.description, Ollama);
+    const skills: string[] = await analyseTask(taskToAnalyse.description, ollama);
 
     taskToAnalyse.status = "COMPLETE";
     taskToAnalyse.skills = skills;
