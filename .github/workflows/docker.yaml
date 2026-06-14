@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: benjamingodfrey/task627
+  IMAGE_NAME: benjamingodfrey/task629
 
 jobs:
   build-and-publish:
