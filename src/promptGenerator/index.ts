@@ -1,10 +1,10 @@
-import { clientProfile } from './clientProfile'
+import { clientProfile } from "./clientProfile";
 
 const generateTaskAnalysisRequest = (task: string) => {
-    if (task === '') {
-        throw new Error("Task is empty")
-    }
-    return `You are a professional growth and development expert specialising in identifying transferable and technical skills from real-world tasks.
+  if (task === "") {
+    throw new Error("Task is empty");
+  }
+  return `You are a professional growth and development expert specialising in identifying transferable and technical skills from real-world tasks.
 
 You will be given a client profile and a completed task description.
 
@@ -29,6 +29,6 @@ Return format requirements:
 
 Output example format:
 Skill A, Skill B, Skill C`;
-}
+};
 
-export { generateTaskAnalysisRequest }
+export { generateTaskAnalysisRequest };
