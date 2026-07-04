@@ -4,14 +4,16 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 env:
   IMAGE_NAME: benjamingodfrey/task629
 
 jobs:
-  build-and-publish:
+  code-quality:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +36,67 @@ jobs:
       - name: Run typecheck
         run: npm run typecheck
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci -f
+
       - name: Run tests
         run: npm test
+
+  version-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify version update
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          VERSION_BASE=$(git show origin/${{ github.base_ref }}:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf-8')).version")
+          VERSION_PR=$(node -p "require('./package.json').version")
+          echo "Base branch ($GITHUB_BASE_REF) version: $VERSION_BASE"
+          echo "PR branch version: $VERSION_PR"
+          if [ "$VERSION_BASE" = "$VERSION_PR" ]; then
+            echo "::error::The package version has not been bumped in package.json. Base version is $VERSION_BASE."
+            exit 1
+          fi
+          echo "Version successfully bumped from $VERSION_BASE to $VERSION_PR."
+
+  docker-publish:
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci -f
 
       - name: Read package version
         id: version
