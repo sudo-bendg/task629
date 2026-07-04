@@ -1,6 +1,6 @@
 {
   "name": "task629",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "homepage": "https://github.com/sudo-bendg/task629#readme",
   "bugs": {
@@ -16,7 +16,10 @@
   "main": "dist/src/index.js",
   "scripts": {
     "start": "node .",
-    "test": "npx jest src/"
+    "test": "npx jest src/",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
