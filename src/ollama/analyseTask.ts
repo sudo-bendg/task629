@@ -17,7 +17,10 @@ const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
   return skills;
 };
 
-const analyseNextTask = async (ollama: Ollama, db: DatabaseStrategy): Promise<void> => {
+const analyseNextTask = async (
+  ollama: Ollama,
+  db: DatabaseStrategy,
+): Promise<void> => {
   const taskToAnalyse = await db.getNextTaskToAnalyse();
 
   if (!taskToAnalyse) {

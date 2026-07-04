@@ -82,7 +82,7 @@ describe("MongoDatabaseStrategy", () => {
           description: "Fake",
           skills: [],
           status: "NEW",
-        })
+        }),
       ).rejects.toThrow(`Task with id ${fakeId} not found`);
     });
   });
