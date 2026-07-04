@@ -1,4 +1,25 @@
+import { Telegraf } from "telegraf";
 import { Bot, TaskHandler, TextMessageContext } from "./bot";
+
+const mockOn = jest.fn();
+const mockLaunch = jest.fn().mockResolvedValue(undefined);
+
+jest.mock("telegraf", () => {
+  return {
+    Telegraf: jest.fn().mockImplementation(() => {
+      return {
+        on: mockOn,
+        launch: mockLaunch,
+      };
+    }),
+  };
+});
+
+jest.mock("telegraf/filters", () => {
+  return {
+    message: jest.fn().mockImplementation((type) => type),
+  };
+});
 
 const TOKEN = "123";
 
@@ -7,10 +28,19 @@ describe("bot", () => {
   let bot: Bot;
 
   beforeEach(() => {
+    mockOn.mockClear();
+    mockLaunch.mockClear();
+    (Telegraf as unknown as jest.Mock).mockClear();
     mockHandler = {
       handle: jest.fn().mockResolvedValue(undefined),
     };
     bot = new Bot(TOKEN, mockHandler);
+  });
+
+  test("initializes and launches the telegram bot", () => {
+    expect(Telegraf).toHaveBeenCalledWith(TOKEN);
+    expect(mockOn).toHaveBeenCalledWith("text", expect.any(Function));
+    expect(mockLaunch).toHaveBeenCalled();
   });
 
   const createMockContext = (text?: string) =>
