@@ -1,6 +1,6 @@
-import { Task } from "../db/models/task";
 import { generateTaskAnalysisRequest } from "../promptGenerator";
 import { Ollama } from "./ollama";
+import { DatabaseStrategy } from "../db/databaseStrategy";
 
 const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
   let prompt = "";
@@ -17,8 +17,8 @@ const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
   return skills;
 };
 
-const analyseNextTask = async (ollama: Ollama): Promise<void> => {
-  const taskToAnalyse = await Task.findOne({ status: "NEW" });
+const analyseNextTask = async (ollama: Ollama, db: DatabaseStrategy): Promise<void> => {
+  const taskToAnalyse = await db.getNextTaskToAnalyse();
 
   if (!taskToAnalyse) {
     console.log("no task found");
@@ -31,7 +31,7 @@ const analyseNextTask = async (ollama: Ollama): Promise<void> => {
 
   taskToAnalyse.status = "COMPLETE";
   taskToAnalyse.skills = skills;
-  await taskToAnalyse.save();
+  await db.saveTask(taskToAnalyse);
 
   console.log(`Finished task analysis of: ${taskToAnalyse.description}`);
 };

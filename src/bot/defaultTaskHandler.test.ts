@@ -1,17 +1,20 @@
 import { DefaultTaskHandler } from "./defaultTaskHandler";
-import { Task } from "../db/models/task";
-
-jest.mock("../db/models/task", () => ({
-  Task: {
-    create: jest.fn(),
-  },
-}));
+import { DatabaseStrategy } from "../db/databaseStrategy";
 
 describe("DefaultTaskHandler", () => {
   let handler: DefaultTaskHandler;
+  let mockDb: jest.Mocked<DatabaseStrategy>;
 
   beforeEach(() => {
-    handler = new DefaultTaskHandler();
+    mockDb = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+      createTask: jest.fn(),
+      getNextTaskToAnalyse: jest.fn(),
+      saveTask: jest.fn(),
+    } as unknown as jest.Mocked<DatabaseStrategy>;
+
+    handler = new DefaultTaskHandler(mockDb);
 
     jest.clearAllMocks();
     jest.spyOn(console, "log").mockImplementation(() => undefined);
@@ -34,9 +37,7 @@ describe("DefaultTaskHandler", () => {
 
     await handler.handle(task);
 
-    expect(Task.create).toHaveBeenCalledWith({
-      description: task,
-    });
+    expect(mockDb.createTask).toHaveBeenCalledWith(task);
   });
 
   it("resolves without throwing", async () => {
