@@ -1,5 +1,5 @@
-import { Task } from "../db/models/task";
-import { generateTaskAnalysisRequest } from "../promptGenerator";
+import { Task } from "../../db/models/task";
+import { generateTaskAnalysisRequest } from "../../promptGenerator";
 import { Ollama } from "./ollama";
 
 const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {

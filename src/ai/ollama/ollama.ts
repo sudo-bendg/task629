@@ -1,4 +1,6 @@
-export class Ollama {
+import { AI } from "../ai";
+
+export class Ollama implements AI {
   url: string;
   defaultModel: string;
 

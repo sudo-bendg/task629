@@ -1,9 +1,9 @@
 import { Bot } from "./bot/bot";
 import { getConnection } from "./db/connect";
 import dotenv from "dotenv";
-import { Ollama } from "./ollama/ollama";
+import { Ollama } from "./ai/ollama/ollama";
 import { DefaultTaskHandler } from "./bot/defaultTaskHandler";
-import { analyseNextTask } from "./ollama/analyseTask";
+import { analyseNextTask } from "./ai/ollama/analyseTask";
 
 dotenv.config();
 const telegramBotKey = process.env.TELEGRAM_BOT_KEY || "";

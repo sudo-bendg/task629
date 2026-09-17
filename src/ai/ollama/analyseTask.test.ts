@@ -1,10 +1,10 @@
 import { analyseNextTask } from "./analyseTask";
-import { Task } from "../db/models/task";
-import { generateTaskAnalysisRequest } from "../promptGenerator";
+import { Task } from "../../db/models/task";
+import { generateTaskAnalysisRequest } from "../../promptGenerator";
 import { Ollama } from "./ollama";
 
-jest.mock("../db/models/task");
-jest.mock("../promptGenerator");
+jest.mock("../../db/models/task");
+jest.mock("../../promptGenerator");
 jest.mock("./ollama");
 
 describe("analyseNextTask", () => {
