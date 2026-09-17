@@ -1,5 +1,5 @@
 import { AI } from "../ai";
-import Groq from 'groq-sdk' ;
+import Groq from "groq-sdk";
 
 export class GroqClass extends AI {
   client: Groq;
@@ -44,7 +44,10 @@ export class GroqClass extends AI {
     if (choice.message) {
       const messageContent = choice.message.content;
 
-      if (typeof messageContent === "string" && messageContent.trim().length > 0) {
+      if (
+        typeof messageContent === "string" &&
+        messageContent.trim().length > 0
+      ) {
         return messageContent;
       }
 

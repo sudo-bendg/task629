@@ -11,15 +11,17 @@ describe("GroqClass", () => {
 
   it("returns the response from Groq using the specified model", async () => {
     const groq = new GroqClass(apiKey, defaultModel);
-    const create = jest.spyOn(groq.client.chat.completions, "create").mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: "Hello from Groq with specified model",
+    const create = jest
+      .spyOn(groq.client.chat.completions, "create")
+      .mockResolvedValue({
+        choices: [
+          {
+            message: {
+              content: "Hello from Groq with specified model",
+            },
           },
-        },
-      ],
-    } as never);
+        ],
+      } as never);
 
     const result = await groq.request("Hello", "custom-model");
 
@@ -32,15 +34,17 @@ describe("GroqClass", () => {
 
   it("uses the default model when no model is specified", async () => {
     const groq = new GroqClass(apiKey, defaultModel);
-    const create = jest.spyOn(groq.client.chat.completions, "create").mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: "Hello with default model",
+    const create = jest
+      .spyOn(groq.client.chat.completions, "create")
+      .mockResolvedValue({
+        choices: [
+          {
+            message: {
+              content: "Hello with default model",
+            },
           },
-        },
-      ],
-    } as never);
+        ],
+      } as never);
 
     const result = await groq.request("Hello");
 
@@ -53,7 +57,9 @@ describe("GroqClass", () => {
 
   it("throws when Groq returns no choices", async () => {
     const groq = new GroqClass(apiKey, defaultModel);
-    jest.spyOn(groq.client.chat.completions, "create").mockResolvedValue({} as never);
+    jest
+      .spyOn(groq.client.chat.completions, "create")
+      .mockResolvedValue({} as never);
 
     await expect(groq.request("Hello")).rejects.toThrow(
       "No choices returned from Groq",

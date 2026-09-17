@@ -8,8 +8,9 @@ export class Gemini extends AI {
     private apiKey: string,
     private defaultModel?: string,
   ) {
-
-    console.log("Let me know if this works, I haven't been able to test it lol")
+    console.log(
+      "Let me know if this works, I haven't been able to test it lol",
+    );
 
     super();
 
