@@ -1,8 +1,8 @@
 import { Task } from "../../db/models/task";
 import { generateTaskAnalysisRequest } from "../../promptGenerator";
-import { Ollama } from "./ollama";
+import { AI } from "../ai";
 
-const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
+const analyseTask = async (task: string, ai: AI): Promise<string[]> => {
   let prompt = "";
 
   try {
@@ -11,13 +11,13 @@ const analyseTask = async (task: string, ollama: Ollama): Promise<string[]> => {
     console.log(err);
   }
 
-  const response = await ollama.request(prompt);
+  const response = await ai.request(prompt);
   const skills: string[] = response.split(",");
 
   return skills;
 };
 
-const analyseNextTask = async (ollama: Ollama): Promise<void> => {
+const analyseNextTask = async (ai: AI): Promise<void> => {
   const taskToAnalyse = await Task.findOne({ status: "NEW" });
 
   if (!taskToAnalyse) {
@@ -27,7 +27,7 @@ const analyseNextTask = async (ollama: Ollama): Promise<void> => {
 
   console.log(`Analysing task: ${taskToAnalyse.description}`);
 
-  const skills: string[] = await analyseTask(taskToAnalyse.description, ollama);
+  const skills: string[] = await analyseTask(taskToAnalyse.description, ai);
 
   taskToAnalyse.status = "COMPLETE";
   taskToAnalyse.skills = skills;
