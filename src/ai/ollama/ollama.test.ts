@@ -9,6 +9,16 @@ describe("Ollama", () => {
     jest.clearAllMocks();
   });
 
+  it("throws when the URL is invalid", () => {
+    expect(() => new Ollama("not-a-url", defaultModel)).toThrow(
+      "Invalid Ollama URL",
+    );
+  });
+
+  it("throws when no model is provided", () => {
+    expect(() => new Ollama(url, "")).toThrow("Ollama model is required");
+  });
+
   it("returns the response from Ollama using specified model", async () => {
     const mockFetch = jest.fn().mockResolvedValue({
       json: jest.fn().mockResolvedValue({

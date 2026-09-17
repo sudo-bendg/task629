@@ -1,13 +1,41 @@
-export class Ollama {
+import { AI } from "../ai";
+
+export class Ollama extends AI {
   url: string;
   defaultModel: string;
 
   constructor(ollamaUrl: string, model: string) {
+    super();
+
+    if (!ollamaUrl.trim()) {
+      throw new Error("Ollama URL is required");
+    }
+
+    try {
+      const parsedUrl = new URL(ollamaUrl);
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error("Ollama URL must use HTTP or HTTPS");
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Ollama URL must use HTTP or HTTPS"
+      ) {
+        throw error;
+      }
+
+      throw new Error("Invalid Ollama URL", { cause: error });
+    }
+
+    if (!model.trim()) {
+      throw new Error("Ollama model is required");
+    }
+
     this.url = ollamaUrl;
     this.defaultModel = model;
   }
 
-  async request(prompt: string, model?: string) {
+  async request(prompt: string, model?: string): Promise<string> {
     const requestBody = {
       model: model || this.defaultModel,
       prompt: prompt,
