@@ -12,7 +12,14 @@ const analyseTask = async (task: string, ai: AI): Promise<string[]> => {
   }
 
   const response = await ai.request(prompt);
-  const skills: string[] = response.split(",");
+  const skills = Array.from(
+    new Set(
+      response
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill.length > 0),
+    ),
+  );
 
   return skills;
 };

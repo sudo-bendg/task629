@@ -85,4 +85,28 @@ describe("analyseNextTask", () => {
     expect(mockTask.skills).toEqual(["NoSkills"]);
     expect(mockTask.save).toHaveBeenCalled();
   });
+
+  it("should trim and deduplicate skills returned by the AI provider", async () => {
+    const mockTask = {
+      description: "Build a dashboard",
+      status: "NEW",
+      skills: [] as string[],
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+    (Task.findOne as jest.Mock).mockResolvedValue(mockTask);
+    (generateTaskAnalysisRequest as jest.Mock).mockReturnValue("Mock Prompt");
+    mockOllama.request.mockResolvedValue(
+      " TypeScript, Jest , TypeScript, TDD,  Jest , , Communication ",
+    );
+
+    await analyseNextTask(mockOllama);
+
+    expect(mockTask.skills).toEqual([
+      "TypeScript",
+      "Jest",
+      "TDD",
+      "Communication",
+    ]);
+    expect(mockTask.save).toHaveBeenCalled();
+  });
 });
