@@ -13,6 +13,7 @@ export interface AppConfig {
   telegramBotKey: string;
   mongoConnectionString: string;
   defaultModel: string;
+  strongerModel: string;
   ollamaUrl: string;
   geminiApiKey: string;
   groqApiKey: string;
@@ -24,6 +25,7 @@ export const getAppConfig = (
   telegramBotKey: env.TELEGRAM_BOT_KEY || "",
   mongoConnectionString: env.MONGO_CONNECTION_STRING || "",
   defaultModel: env.DEFAULT_MODEL || "",
+  strongerModel: env.STRONGER_MODEL || env.DEFAULT_MODEL || "",
   ollamaUrl: env.OLLAMA_URL || "",
   geminiApiKey: env.GEMINI_API_KEY || "",
   groqApiKey: env.GROQ_API_KEY || "",
@@ -73,6 +75,8 @@ export const bootstrapApp = async (
   const ai = resolveAIProvider(config);
   const taskAnalysisService = new TaskAnalysisService({
     analyseTask: (taskDescription) => ai.analyseTask(taskDescription),
+    reviewTask: (taskDescription, skills, otherTasks) =>
+      ai.reviewTask(taskDescription, skills, config.strongerModel, otherTasks),
   });
 
   await taskAnalysisService.analyseNextTask().catch(console.error);

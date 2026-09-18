@@ -1,4 +1,7 @@
-import { generateTaskAnalysisRequest } from "../promptGenerator";
+import {
+  generateTaskAnalysisRequest,
+  generateTaskReviewRequest,
+} from "../promptGenerator";
 
 export abstract class AI {
   abstract request(prompt: string, model?: string): Promise<string>;
@@ -13,6 +16,25 @@ export abstract class AI {
     }
 
     const response = await this.request(prompt);
+    return Array.from(
+      new Set(
+        response
+          .split(",")
+          .map((skill) => skill.trim())
+          .filter((skill) => skill.length > 0),
+      ),
+    );
+  }
+
+  async reviewTask(
+    task: string,
+    skills: string[],
+    model?: string,
+    otherTasks: { description: string; skills: string[] }[] = [],
+  ): Promise<string[]> {
+    const prompt = generateTaskReviewRequest(task, skills, otherTasks);
+    const response = await this.request(prompt, model);
+
     return Array.from(
       new Set(
         response
