@@ -1,5 +1,8 @@
 import { AI } from "../ai";
+import { resolveModelName } from "../providerUtils";
 import Groq from "groq-sdk";
+
+const GROQ_DEFAULT_MODEL = "openai/gpt-oss-20b";
 
 export class GroqClass extends AI {
   client: Groq;
@@ -22,11 +25,15 @@ export class GroqClass extends AI {
       throw new Error("Failed to create Groq client", { cause: error });
     }
 
-    this.defaultModel = defaultModel || "openai/gpt-oss-20b";
+    this.defaultModel = defaultModel || GROQ_DEFAULT_MODEL;
   }
 
   async request(prompt: string, model?: string): Promise<string> {
-    const modelName = model || this.defaultModel || "openai/gpt-oss-20b";
+    const modelName = resolveModelName(
+      this.defaultModel,
+      model,
+      GROQ_DEFAULT_MODEL,
+    );
     const response = await this.client.chat.completions.create({
       model: modelName,
       messages: [{ role: "user", content: prompt }],

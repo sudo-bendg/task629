@@ -42,4 +42,12 @@ describe("DefaultTaskHandler", () => {
   it("resolves without throwing", async () => {
     await expect(handler.handle("anything")).resolves.toBeUndefined();
   });
+
+  it("awaits task creation and propagates persistence errors", async () => {
+    const dbError = new Error("Database write failed");
+    (Task.create as jest.Mock).mockRejectedValueOnce(dbError);
+
+    await expect(handler.handle("anything")).rejects.toThrow(dbError.message);
+    expect(Task.create).toHaveBeenCalledWith({ description: "anything" });
+  });
 });
