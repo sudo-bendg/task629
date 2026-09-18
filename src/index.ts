@@ -5,7 +5,6 @@ import { AI } from "./ai/ai";
 import { Gemini } from "./ai/gemini/gemini";
 import { Ollama } from "./ai/ollama/ollama";
 import { DefaultTaskHandler } from "./bot/defaultTaskHandler";
-import { analyseNextTask } from "./ai/ollama/analyseTask";
 import { GroqClass } from "./ai/groq/groq";
 
 dotenv.config();
@@ -36,9 +35,9 @@ const HOUR = 60 * 60 * 1000;
     throw new Error("No AI provider is configured");
   }
 
-  await analyseNextTask(ai).catch(console.error);
+  await ai.analyseNextTask().catch(console.error);
 
   setInterval(() => {
-    analyseNextTask(ai).catch(console.error);
+    ai.analyseNextTask().catch(console.error);
   }, HOUR);
 })();
