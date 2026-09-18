@@ -2,6 +2,7 @@ import { Bot } from "./bot/bot";
 import { getConnection } from "./db/connect";
 import dotenv from "dotenv";
 import { AI } from "./ai/ai";
+import { TaskAnalysisService } from "./ai/taskAnalysisService";
 import { Gemini } from "./ai/gemini/gemini";
 import { Ollama } from "./ai/ollama/ollama";
 import { DefaultTaskHandler } from "./bot/defaultTaskHandler";
@@ -35,9 +36,13 @@ const HOUR = 60 * 60 * 1000;
     throw new Error("No AI provider is configured");
   }
 
-  await ai.analyseNextTask().catch(console.error);
+  const taskAnalysisService = new TaskAnalysisService({
+    analyseTask: (taskDescription) => ai.analyseTask(taskDescription),
+  });
+
+  await taskAnalysisService.analyseNextTask().catch(console.error);
 
   setInterval(() => {
-    ai.analyseNextTask().catch(console.error);
+    taskAnalysisService.analyseNextTask().catch(console.error);
   }, HOUR);
 })();
