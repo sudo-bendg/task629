@@ -85,11 +85,9 @@ describe("AI.analyseNextTask", () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     (Task.findOne as jest.Mock).mockResolvedValue(mockTask);
-    jest.spyOn(testAI, "analyseTask").mockResolvedValue([
-      "TypeScript",
-      "Jest",
-      "TDD",
-    ]);
+    jest
+      .spyOn(testAI, "analyseTask")
+      .mockResolvedValue(["TypeScript", "Jest", "TDD"]);
 
     await testAI.analyseNextTask();
 
