@@ -4,7 +4,7 @@ import { Task } from "../db/models/task";
 class DefaultTaskHandler implements TaskHandler {
   async handle(task: string): Promise<void> {
     console.log(`Task revieved: ${task}`);
-    Task.create({ description: task });
+    await Task.create({ description: task });
   }
 }
 
