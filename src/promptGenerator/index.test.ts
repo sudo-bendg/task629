@@ -1,4 +1,7 @@
-import { generateTaskAnalysisRequest } from "./index";
+import {
+  generateTaskAnalysisRequest,
+  generateTaskReviewRequest,
+} from "./index";
 import { clientProfile } from "./clientProfile";
 
 describe("generateTaskAnalysisRequest", () => {
@@ -15,5 +18,22 @@ describe("generateTaskAnalysisRequest", () => {
 
   it("should throw an error if the task is an empty string", () => {
     expect(() => generateTaskAnalysisRequest("")).toThrow("Task is empty");
+  });
+});
+
+describe("generateTaskReviewRequest", () => {
+  it("generates a prompt containing the task and existing skills", () => {
+    const prompt = generateTaskReviewRequest("Implement OAuth2 login flow", [
+      "TypeScript",
+      "Testing",
+    ]);
+
+    expect(prompt).toContain("Implement OAuth2 login flow");
+    expect(prompt).toContain("TypeScript, Testing");
+    expect(prompt).toContain("complete corrected skills list");
+  });
+
+  it("rejects an empty task description", () => {
+    expect(() => generateTaskReviewRequest("", [])).toThrow("Task is empty");
   });
 });

@@ -1,4 +1,7 @@
-import { generateTaskAnalysisRequest } from "../promptGenerator";
+import {
+  generateTaskAnalysisRequest,
+  generateTaskReviewRequest,
+} from "../promptGenerator";
 import { AI } from "./ai";
 
 jest.mock("../promptGenerator");
@@ -50,5 +53,33 @@ describe("AI.analyseTask", () => {
 
     expect(console.log).toHaveBeenCalledWith(testError);
     expect(testAI.request).toHaveBeenCalledWith("");
+  });
+});
+
+describe("AI.reviewTask", () => {
+  let testAI: TestAI;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    testAI = new TestAI();
+  });
+
+  it("reviews skills with the requested model and normalizes the result", async () => {
+    (generateTaskReviewRequest as jest.Mock).mockReturnValue("Review Prompt");
+    testAI.request.mockResolvedValue(" Jest, TypeScript, Jest ");
+
+    await expect(
+      testAI.reviewTask("Build a dashboard", ["Jest"], "strong-model"),
+    ).resolves.toEqual(["Jest", "TypeScript"]);
+
+    expect(generateTaskReviewRequest).toHaveBeenCalledWith(
+      "Build a dashboard",
+      ["Jest"],
+      [],
+    );
+    expect(testAI.request).toHaveBeenCalledWith(
+      "Review Prompt",
+      "strong-model",
+    );
   });
 });

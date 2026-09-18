@@ -39,6 +39,16 @@ describe("Task Model Test", () => {
     expect(foundTask).not.toHaveLength(0);
   });
 
+  it("should save a reviewed task", async () => {
+    const reviewedTask = new Task({
+      description: "Review the task analysis",
+      skills: ["Quality assurance"],
+      status: "REVIEWED",
+    });
+
+    await expect(reviewedTask.save()).resolves.toBeDefined();
+  });
+
   it("should fail if a required field is missing", async () => {
     const taskWithoutDescription = new Task({ skills: ["Plumbing"] });
 

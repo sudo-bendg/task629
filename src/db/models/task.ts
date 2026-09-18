@@ -4,7 +4,11 @@ const TaskSchema = new Schema(
   {
     description: { type: String, required: true },
     skills: [{ type: String }],
-    status: { type: String, enum: ["NEW", "COMPLETE"], default: "NEW" },
+    status: {
+      type: String,
+      enum: ["NEW", "COMPLETE", "REVIEWED"],
+      default: "NEW",
+    },
   },
   { timestamps: true },
 );

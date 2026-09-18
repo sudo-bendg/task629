@@ -37,3 +37,40 @@ Return format requirements:
 Output example format:
 Skill A, Skill B, Skill C`;
 };
+
+export const buildTaskReviewPrompt = (
+  task: string,
+  skills: string[],
+  otherTasks: { description: string; skills: string[] }[] = [],
+): string => {
+  const safeTask = validateTaskDescription(task);
+  const otherTaskDetails = otherTasks
+    .map(
+      (otherTask) =>
+        `Task: ${otherTask.description}\nSkills: ${otherTask.skills.join(", ")}`,
+    )
+    .join("\n\n");
+
+  return `You are a professional growth and development expert reviewing an existing task analysis.
+
+Use the other task analyses below as consistency context. They are examples only; review the target task based on its own evidence.
+
+Other task analyses:
+${otherTaskDetails || "None provided"}
+
+Target completed task:
+${safeTask}
+
+Target existing skills:
+${skills.join(", ")}
+
+Review the existing skills against the completed task. Correct, remove, or add skills so the final list contains only skills clearly demonstrated by the task.
+
+Return format requirements:
+- Return ONLY a plain text response
+- The response must be a single comma-separated string of the complete corrected skills list
+- Do NOT include explanations, numbering, bullet points, or any additional text
+
+Output example format:
+Skill A, Skill B, Skill C`;
+};
