@@ -18,7 +18,9 @@ export interface AppConfig {
   groqApiKey: string;
 }
 
-export const getAppConfig = (env: NodeJS.ProcessEnv = process.env): AppConfig => ({
+export const getAppConfig = (
+  env: NodeJS.ProcessEnv = process.env,
+): AppConfig => ({
   telegramBotKey: env.TELEGRAM_BOT_KEY || "",
   mongoConnectionString: env.MONGO_CONNECTION_STRING || "",
   defaultModel: env.DEFAULT_MODEL || "",

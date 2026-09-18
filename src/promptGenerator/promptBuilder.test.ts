@@ -1,4 +1,7 @@
-import { buildTaskAnalysisPrompt, validateTaskDescription } from "./promptBuilder";
+import {
+  buildTaskAnalysisPrompt,
+  validateTaskDescription,
+} from "./promptBuilder";
 import { clientProfile } from "./clientProfile";
 
 describe("validateTaskDescription", () => {

@@ -5,7 +5,9 @@ jest.mock("../db/models/task");
 
 describe("TaskAnalysisService", () => {
   it("logs and returns when no task is available", async () => {
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => undefined);
+    const logSpy = jest
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
     const analyseTask = jest.fn();
     (Task.findOne as jest.Mock).mockResolvedValue(null);
 
@@ -18,14 +20,18 @@ describe("TaskAnalysisService", () => {
   });
 
   it("analyses, completes, and saves the next task", async () => {
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => undefined);
+    const logSpy = jest
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
     const mockTask = {
       description: "Write unit tests for the application",
       status: "NEW",
       skills: [] as string[],
       save: jest.fn().mockResolvedValue(undefined),
     };
-    const analyseTask = jest.fn().mockResolvedValue(["TypeScript", "Jest", "TDD"]);
+    const analyseTask = jest
+      .fn()
+      .mockResolvedValue(["TypeScript", "Jest", "TDD"]);
     (Task.findOne as jest.Mock).mockResolvedValue(mockTask);
 
     const service = new TaskAnalysisService({ analyseTask });

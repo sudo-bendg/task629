@@ -17,7 +17,9 @@ export class TaskAnalysisService {
 
     console.log(`Analysing task: ${taskToAnalyse.description}`);
 
-    const skills = await this.dependencies.analyseTask(taskToAnalyse.description);
+    const skills = await this.dependencies.analyseTask(
+      taskToAnalyse.description,
+    );
 
     taskToAnalyse.status = "COMPLETE";
     taskToAnalyse.skills = skills;
