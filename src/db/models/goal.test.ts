@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { Goal } from "./task";
+import { Goal } from "./goal";
 
 let mongoServer: MongoMemoryServer;
 
@@ -20,7 +20,7 @@ afterEach(async () => {
 
 describe("Goal Model Test", () => {
   it("should create & save a goal successfully with defaults", async () => {
-    const validGoal = new Goal({ description: "Get better at programming" });
+    const validGoal = new Goal({ title: "Get better at programming" });
     const savedGoal = await validGoal.save();
 
     expect(savedGoal._id).toBeDefined();
@@ -28,7 +28,7 @@ describe("Goal Model Test", () => {
   });
 
   it("should read a created goal after write", async () => {
-    const validGoal = new Goal({ description: "Get better at programming" });
+    const validGoal = new Goal({ title: "Get better at programming" });
     await validGoal.save();
 
     const foundGoal = await Goal.find({}).exec();
