@@ -1,5 +1,5 @@
 import { Telegraf } from "telegraf";
-import { Bot, TaskHandler, TextMessageContext } from "./bot";
+import { Bot, GoalHandler, TaskHandler, TextMessageContext } from "./bot";
 
 const mockOn = jest.fn();
 const mockLaunch = jest.fn().mockResolvedValue(undefined);
@@ -24,17 +24,23 @@ jest.mock("telegraf/filters", () => {
 const TOKEN = "123";
 
 describe("bot", () => {
-  let mockHandler: TaskHandler;
+  let mockTaskHandler: TaskHandler;
+  let mockGoalHandler: GoalHandler;
   let bot: Bot;
 
   beforeEach(() => {
     mockOn.mockClear();
     mockLaunch.mockClear();
     (Telegraf as unknown as jest.Mock).mockClear();
-    mockHandler = {
+    mockTaskHandler = {
       handle: jest.fn().mockResolvedValue(undefined),
     };
-    bot = new Bot(TOKEN, mockHandler);
+    mockGoalHandler = {
+      handleNewGoal: jest.fn().mockResolvedValue(undefined),
+      handleRemoveGoal: jest.fn().mockResolvedValue(undefined),
+      handleListGoals: jest.fn().mockResolvedValue(undefined),
+    };
+    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler);
   });
 
   test("initializes and launches the telegram bot", () => {
@@ -51,17 +57,17 @@ describe("bot", () => {
   test("passes received telegram messages to the task handler", async () => {
     const mockCtx = createMockContext("Write blog post");
     await bot.handleTelegramMessage(mockCtx);
-    expect(mockHandler.handle).toHaveBeenCalledWith("Write blog post");
+    expect(mockTaskHandler.handle).toHaveBeenCalledWith("Write blog post");
   });
 
   test("calls the task handler exactly once", async () => {
     const mockCtx = createMockContext("Build API");
     await bot.handleTelegramMessage(mockCtx);
-    expect(mockHandler.handle).toHaveBeenCalledTimes(1);
+    expect(mockTaskHandler.handle).toHaveBeenCalledTimes(1);
   });
 
   test("propagates errors from the task handler", async () => {
-    mockHandler.handle = jest
+    mockTaskHandler.handle = jest
       .fn()
       .mockRejectedValue(new Error("Database unavailable"));
     const mockCtx = createMockContext("Build API");
@@ -75,7 +81,7 @@ describe("bot", () => {
 
     await bot.handleTelegramMessage(mockCtx);
 
-    expect(mockHandler.handle).toHaveBeenCalledWith(undefined);
+    expect(mockTaskHandler.handle).not.toHaveBeenCalled();
   });
 
   test("handles empty string messages", async () => {
@@ -83,7 +89,7 @@ describe("bot", () => {
 
     await bot.handleTelegramMessage(mockCtx);
 
-    expect(mockHandler.handle).toHaveBeenCalledWith("");
+    expect(mockTaskHandler.handle).not.toHaveBeenCalled();
   });
 
   test("processes multiple rapid/concurrent messages independently", async () => {
@@ -95,9 +101,9 @@ describe("bot", () => {
       bot.handleTelegramMessage(mockCtx2),
     ]);
 
-    expect(mockHandler.handle).toHaveBeenCalledTimes(2);
-    expect(mockHandler.handle).toHaveBeenCalledWith("Task 1");
-    expect(mockHandler.handle).toHaveBeenCalledWith("Task 2");
+    expect(mockTaskHandler.handle).toHaveBeenCalledTimes(2);
+    expect(mockTaskHandler.handle).toHaveBeenCalledWith("Task 1");
+    expect(mockTaskHandler.handle).toHaveBeenCalledWith("Task 2");
   });
 });
 
@@ -115,12 +121,13 @@ describe("bot goal functionality", () => {
       handleRemoveGoal: jest.fn().mockResolvedValue(undefined),
       handleListGoals: jest.fn().mockResolvedValue(undefined),
     };
-    bot = new Bot(TOKEN, mockTaskHandler);
+    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler);
   });
 
   test("goal handler handles new goal messages", async () => {
     const mockCtx = {
       message: { text: "/setgoal Learn TypeScript" },
+      reply: jest.fn().mockResolvedValue(undefined),
     } as TextMessageContext;
 
     await bot.handleTelegramMessage(mockCtx);
@@ -131,6 +138,7 @@ describe("bot goal functionality", () => {
   test("goal handler handles removing goal messages", async () => {
     const mockCtx = {
       message: { text: "/removegoal Learn TypeScript" },
+      reply: jest.fn().mockResolvedValue(undefined),
     } as TextMessageContext;
     
     await bot.handleTelegramMessage(mockCtx);
@@ -153,6 +161,7 @@ describe("bot goal functionality", () => {
   test("does not interfere with task handling when processing goal messages", async () => {
     const mockCtx = {
       message: { text: "/setgoal Learn TypeScript" },
+      reply: jest.fn().mockResolvedValue(undefined),
     } as TextMessageContext;
 
     await bot.handleTelegramMessage(mockCtx);
