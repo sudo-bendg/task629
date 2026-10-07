@@ -100,3 +100,63 @@ describe("bot", () => {
     expect(mockHandler.handle).toHaveBeenCalledWith("Task 2");
   });
 });
+
+describe("bot goal functionality", () => {
+  let mockTaskHandler: TaskHandler;
+  let mockGoalHandler: GoalHandler;
+  let bot: Bot;
+
+  beforeEach(() => {
+    mockTaskHandler = {
+      handle: jest.fn().mockResolvedValue(undefined),
+    };
+    mockGoalHandler = {
+      handleNewGoal: jest.fn().mockResolvedValue(undefined),
+      handleRemoveGoal: jest.fn().mockResolvedValue(undefined),
+      handleListGoals: jest.fn().mockResolvedValue(undefined),
+    };
+    bot = new Bot(TOKEN, mockTaskHandler);
+  });
+
+  test("goal handler handles new goal messages", async () => {
+    const mockCtx = {
+      message: { text: "/setgoal Learn TypeScript" },
+    } as TextMessageContext;
+
+    await bot.handleTelegramMessage(mockCtx);
+
+    expect(mockGoalHandler.handleNewGoal).toHaveBeenCalledWith("Learn TypeScript");
+  });
+
+  test("goal handler handles removing goal messages", async () => {
+    const mockCtx = {
+      message: { text: "/removegoal Learn TypeScript" },
+    } as TextMessageContext;
+    
+    await bot.handleTelegramMessage(mockCtx);
+
+    expect(mockGoalHandler.handleRemoveGoal).toHaveBeenCalledWith("Learn TypeScript");
+  });
+
+  describe("goal handler handles list goals messages", () => {
+    test("goal handler handles list goals messages", async () => {
+      const mockCtx = {
+        message: { text: "/listgoals" },
+      } as TextMessageContext;
+
+      await bot.handleTelegramMessage(mockCtx);
+
+      expect(mockGoalHandler.handleListGoals).toHaveBeenCalled();
+    });
+  });
+
+  test("does not interfere with task handling when processing goal messages", async () => {
+    const mockCtx = {
+      message: { text: "/setgoal Learn TypeScript" },
+    } as TextMessageContext;
+
+    await bot.handleTelegramMessage(mockCtx);
+
+    expect(mockTaskHandler.handle).not.toHaveBeenCalled();
+  });
+});
