@@ -146,10 +146,12 @@ describe("bot goal functionality", () => {
       message: { text: "/goal remove Learn TypeScript" },
       reply: jest.fn().mockResolvedValue(undefined),
     };
-    
+
     await bot.handleTelegramMessage(mockCtx);
 
-    expect(mockGoalHandler.handle).toHaveBeenCalledWith("remove Learn TypeScript");
+    expect(mockGoalHandler.handle).toHaveBeenCalledWith(
+      "remove Learn TypeScript",
+    );
   });
 
   describe("goal handler handles list goals messages", () => {

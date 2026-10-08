@@ -19,7 +19,11 @@ export class Bot {
   taskHandler: TaskHandler;
   goalHandler: GoalHandler;
 
-  constructor(botToken: string, taskHandler: TaskHandler, goalHandler: GoalHandler) {
+  constructor(
+    botToken: string,
+    taskHandler: TaskHandler,
+    goalHandler: GoalHandler,
+  ) {
     this.bot = new Telegraf(botToken);
     this.taskHandler = taskHandler;
     this.goalHandler = goalHandler;
