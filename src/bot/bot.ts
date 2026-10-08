@@ -12,7 +12,9 @@ export interface GoalHandler {
   handleListGoals(): Promise<void>;
 }
 
-export type TextMessageContext = { message: { text?: string } };
+export interface TextMessageContext {
+  message: { text?: string };
+}
 
 export class Bot {
   bot: Telegraf;
