@@ -1,4 +1,4 @@
-import { Telegraf, Context } from "telegraf";
+import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 
 export interface TaskHandler {
@@ -6,12 +6,13 @@ export interface TaskHandler {
 }
 
 export interface GoalHandler {
+  handle(message: string): Promise<void>;
   handleNewGoal(goal: string): Promise<void>;
   handleRemoveGoal(goal: string): Promise<void>;
   handleListGoals(): Promise<void>;
 }
 
-export type TextMessageContext = Context & { message: { text: string }, reply: (text: string) => Promise<void> };
+export type TextMessageContext = { message: { text?: string } };
 
 export class Bot {
   bot: Telegraf;
@@ -36,20 +37,11 @@ export class Bot {
       return;
     }
 
-    if (text.startsWith("/setgoal ")) {
-      const goalTitle = text.substring("/setgoal ".length).trim();
-      await this.goalHandler.handleNewGoal(goalTitle);
-      ctx.reply(`Goal set: ${goalTitle}`);
-    }
-    else if (text.startsWith("/removegoal ")) {
-      const goalTitle = text.substring("/removegoal ".length).trim();
-      await this.goalHandler.handleRemoveGoal(goalTitle);
-    }
-    else if (text === "/listgoals") {
-      await this.goalHandler.handleListGoals();
-    }
-    else {
-      await this.taskHandler.handle(ctx.message.text);
+    if (text.startsWith("/goal")) {
+      const message = text.substring("/goal ".length).trim();
+      await this.goalHandler.handle(message);
+    } else {
+      await this.taskHandler.handle(text);
     }
   }
 }
