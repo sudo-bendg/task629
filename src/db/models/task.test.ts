@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Task } from "./task";
-import { DefaultTaskHandler } from "../../bot/defaultTaskHandler";
+import { DefaultTaskHandler } from "../../bot/handlers/defaultTaskHandler";
 
 let mongoServer: MongoMemoryServer;
 

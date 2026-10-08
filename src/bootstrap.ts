@@ -4,8 +4,8 @@ import { Gemini } from "./ai/gemini/gemini";
 import { GroqClass } from "./ai/groq/groq";
 import { Ollama } from "./ai/ollama/ollama";
 import { Bot } from "./bot/bot";
-import { DefaultTaskHandler } from "./bot/defaultTaskHandler";
-import { DefaultGoalHandler } from "./bot/defaultGoalHandler";
+import { DefaultTaskHandler } from "./bot/handlers/defaultTaskHandler";
+import { DefaultGoalHandler } from "./bot/handlers/defaultGoalHandler";
 import { getConnection } from "./db/connect";
 
 export const HOUR_IN_MS = 60 * 60 * 1000;

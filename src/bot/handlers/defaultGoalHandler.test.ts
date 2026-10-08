@@ -1,7 +1,7 @@
-import { Goal } from "../db/models/goal";
+import { Goal } from "../../db/models/goal";
 import { DefaultGoalHandler } from "./defaultGoalHandler";
 
-jest.mock("../db/models/goal", () => ({
+jest.mock("../../db/models/goal", () => ({
   Goal: {
     create: jest.fn(),
     deleteOne: jest.fn(),

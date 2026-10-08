@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Goal } from "./goal";
-import { DefaultGoalHandler } from "../../bot/defaultGoalHandler";
+import { DefaultGoalHandler } from "../../bot/handlers/defaultGoalHandler";
 
 let mongoServer: MongoMemoryServer;
 

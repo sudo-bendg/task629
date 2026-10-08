@@ -1,5 +1,5 @@
-import { GoalHandler } from "./bot";
-import { Goal } from "../db/models/goal";
+import { GoalHandler } from "../bot";
+import { Goal } from "../../db/models/goal";
 
 class DefaultGoalHandler implements GoalHandler {
   async handleNewGoal(title: string): Promise<void> {
