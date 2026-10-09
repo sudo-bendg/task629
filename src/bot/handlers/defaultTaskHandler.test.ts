@@ -1,7 +1,7 @@
 import { DefaultTaskHandler } from "./defaultTaskHandler";
-import { Task } from "../db/models/task";
+import { Task } from "../../db/models/task";
 
-jest.mock("../db/models/task", () => ({
+jest.mock("../../db/models/task", () => ({
   Task: {
     create: jest.fn(),
   },

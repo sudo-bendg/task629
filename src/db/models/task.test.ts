@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Task } from "./task";
+import { DefaultTaskHandler } from "../../bot/handlers/defaultTaskHandler";
 
 let mongoServer: MongoMemoryServer;
 
@@ -90,5 +91,43 @@ describe("Task Model Test", () => {
     }
 
     expect(err.errors.status).toBeDefined();
+  });
+});
+
+describe("DefaultTaskHandler integration", () => {
+  let handler: DefaultTaskHandler;
+
+  beforeEach(() => {
+    handler = new DefaultTaskHandler();
+    jest.spyOn(console, "log").mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("creates a task that can be read from the database with defaults", async () => {
+    await handler.handle("Write integration tests");
+
+    await expect(
+      Task.findOne({ description: "Write integration tests" }).lean(),
+    ).resolves.toMatchObject({
+      description: "Write integration tests",
+      skills: [],
+      status: "NEW",
+    });
+  });
+
+  it("persists task status and skills updates", async () => {
+    const task = await Task.create({ description: "Review the task" });
+    task.status = "REVIEWED";
+    task.skills = ["Quality assurance"];
+    await task.save();
+
+    await expect(Task.findById(task._id).lean()).resolves.toMatchObject({
+      description: "Review the task",
+      skills: ["Quality assurance"],
+      status: "REVIEWED",
+    });
   });
 });

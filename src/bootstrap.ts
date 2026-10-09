@@ -4,7 +4,8 @@ import { Gemini } from "./ai/gemini/gemini";
 import { GroqClass } from "./ai/groq/groq";
 import { Ollama } from "./ai/ollama/ollama";
 import { Bot } from "./bot/bot";
-import { DefaultTaskHandler } from "./bot/defaultTaskHandler";
+import { DefaultTaskHandler } from "./bot/handlers/defaultTaskHandler";
+import { DefaultGoalHandler } from "./bot/handlers/defaultGoalHandler";
 import { getConnection } from "./db/connect";
 
 export const HOUR_IN_MS = 60 * 60 * 1000;
@@ -66,7 +67,8 @@ export const bootstrapApp = async (
   await getConnection(config.mongoConnectionString);
 
   const taskHandler = new DefaultTaskHandler();
-  const bot = new Bot(config.telegramBotKey, taskHandler);
+  const goalHandler = new DefaultGoalHandler();
+  const bot = new Bot(config.telegramBotKey, taskHandler, goalHandler);
 
   if (!bot) {
     console.log("Issue starting bot");
