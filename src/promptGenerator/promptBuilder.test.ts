@@ -1,6 +1,7 @@
 import {
   buildTaskAnalysisPrompt,
   buildGoalAnalysisPrompt,
+  buildGoalTaskMatchPrompt,
   buildTaskReviewPrompt,
   validateTaskDescription,
 } from "./promptBuilder";
@@ -83,5 +84,28 @@ describe("buildGoalAnalysisPrompt", () => {
     expect(prompt).toContain("copied verbatim from the input");
     expect(prompt).toContain("return an empty response");
     expect(prompt).toContain('Do not write "none"');
+  });
+});
+
+describe("buildGoalTaskMatchPrompt", () => {
+  it("asks for a conservative binary decision using one goal and one task", () => {
+    const prompt = buildGoalTaskMatchPrompt(
+      "Become a backend engineer",
+      "Build a REST API",
+    );
+
+    expect(prompt).toContain("Goal: Become a backend engineer");
+    expect(prompt).toContain("Task: Build a REST API");
+    expect(prompt).toContain("only TRUE or FALSE");
+    expect(prompt).not.toContain(clientProfile);
+  });
+
+  it("rejects empty goal or task descriptions", () => {
+    expect(() => buildGoalTaskMatchPrompt("", "Build an API")).toThrow(
+      "Task is empty",
+    );
+    expect(() => buildGoalTaskMatchPrompt("Learn TypeScript", " ")).toThrow(
+      "Task is empty",
+    );
   });
 });

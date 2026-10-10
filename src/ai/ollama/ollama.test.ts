@@ -21,6 +21,7 @@ describe("Ollama", () => {
 
   it("returns the response from Ollama using specified model", async () => {
     const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: jest.fn().mockResolvedValue({
         response: "Hello from Ollama with specified model",
       }),
@@ -50,6 +51,7 @@ describe("Ollama", () => {
 
   it("uses default model when no model is specified", async () => {
     const mockFetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: jest.fn().mockResolvedValue({
         response: "Hello with default model",
       }),
@@ -101,6 +103,7 @@ describe("Ollama", () => {
     const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
 
     global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
       json: jest.fn().mockResolvedValue({
         response: "Success",
       }),
@@ -111,5 +114,35 @@ describe("Ollama", () => {
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
     jest.useRealTimers();
+  });
+
+  it("clears the timeout if the request rejects", async () => {
+    jest.useFakeTimers();
+    const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+    global.fetch = jest
+      .fn()
+      .mockRejectedValue(new Error("Network unavailable"));
+
+    const ollama = new Ollama(url, defaultModel);
+    await expect(ollama.request("Hello")).rejects.toThrow(
+      "Network unavailable",
+    );
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  it("includes retry headers when Ollama returns an HTTP error", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      headers: new Headers({ "retry-after": "60" }),
+    });
+
+    const ollama = new Ollama(url, defaultModel);
+    await expect(ollama.request("Hello")).rejects.toMatchObject({
+      status: 429,
+      headers: expect.any(Headers),
+    });
   });
 });

@@ -52,16 +52,30 @@ export class Ollama extends AI {
       15 * 60 * 1000,
     );
 
-    const response = await fetch(this.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-      signal: controller.signal,
-    });
+    let response: Response;
+    try {
+      response = await fetch(this.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
-    clearTimeout(timeout);
+    if (response.ok === false) {
+      const error = new Error(
+        `Ollama request failed with status ${response.status}`,
+      );
+      Object.assign(error, {
+        status: response.status,
+        headers: response.headers,
+      });
+      throw error;
+    }
 
     const modelResponse = await response.json();
     return modelResponse.response;

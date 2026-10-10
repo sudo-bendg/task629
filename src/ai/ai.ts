@@ -2,6 +2,7 @@ import {
   generateTaskAnalysisRequest,
   generateTaskReviewRequest,
   generateGoalAnalysisRequest,
+  generateGoalTaskMatchRequest,
 } from "../promptGenerator";
 
 export abstract class AI {
@@ -64,5 +65,18 @@ export abstract class AI {
           .filter((skill) => skill.length > 0),
       ),
     );
+  }
+
+  async taskDemonstratesGoal(goal: string, task: string): Promise<boolean> {
+    const response = await this.request(
+      generateGoalTaskMatchRequest(goal, task),
+    );
+    const answer = response.trim().toLowerCase();
+
+    if (answer !== "true" && answer !== "false") {
+      throw new Error(`Invalid goal match response: ${response}`);
+    }
+
+    return answer === "true";
   }
 }

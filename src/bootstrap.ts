@@ -72,8 +72,7 @@ export const bootstrapApp = async (
   await getConnection(config.mongoConnectionString);
 
   const goalAnalysisService = new GoalAnalysisService({
-    analyseGoal: (goalDescription, tasks) =>
-      ai.analyseGoal(goalDescription, tasks),
+    taskDemonstratesGoal: (goal, task) => ai.taskDemonstratesGoal(goal, task),
   });
 
   const taskHandler = new DefaultTaskHandler();
@@ -91,6 +90,7 @@ export const bootstrapApp = async (
       ai.reviewTask(taskDescription, skills, config.strongerModel, otherTasks),
   });
 
+  await goalAnalysisService.resumePendingAnalysis();
   await taskAnalysisService.analyseNextTask().catch(console.error);
   startAnalysisLoop(taskAnalysisService, goalAnalysisService);
 };

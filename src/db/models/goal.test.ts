@@ -60,7 +60,9 @@ describe("DefaultGoalHandler integration", () => {
 
   beforeEach(() => {
     handler = new DefaultGoalHandler(
-      new GoalAnalysisService({ analyseGoal: jest.fn().mockResolvedValue([]) }),
+      new GoalAnalysisService({
+        taskDemonstratesGoal: jest.fn().mockResolvedValue(false),
+      }),
     );
     jest.spyOn(console, "log").mockImplementation(() => undefined);
   });
