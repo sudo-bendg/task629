@@ -1,4 +1,5 @@
 import { Goal } from "../../db/models/goal";
+import { GoalAnalysisService } from "../../ai/goalAnalysisService";
 import { DefaultGoalHandler } from "./defaultGoalHandler";
 
 jest.mock("../../db/models/goal", () => ({
@@ -11,11 +12,15 @@ jest.mock("../../db/models/goal", () => ({
 
 describe("DefaultGoalHandler", () => {
   let handler: DefaultGoalHandler;
+  let goalAnalysisService: GoalAnalysisService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, "log").mockImplementation(() => undefined);
-    handler = new DefaultGoalHandler();
+    goalAnalysisService = new GoalAnalysisService({
+      analyseGoal: jest.fn().mockResolvedValue([]),
+    });
+    handler = new DefaultGoalHandler(goalAnalysisService);
   });
 
   afterEach(() => {
@@ -81,35 +86,46 @@ describe("DefaultGoalHandler", () => {
   });
 });
 
-describe("DefaultGoalHandler analysis", async () => {
-  it("should have a analyseGoals method", () => {
-    const handler = new DefaultGoalHandler();
-    expect(typeof handler.analyseGoals).toBe("function");
+describe("DefaultGoalHandler analysis", () => {
+  let handler: DefaultGoalHandler;
+  let goalAnalysisService: GoalAnalysisService;
+
+  beforeEach(() => {
+    goalAnalysisService = new GoalAnalysisService({
+      analyseGoal: jest.fn().mockResolvedValue([]),
+    });
+    handler = new DefaultGoalHandler(goalAnalysisService);
   });
 
-  it("should create a list of all goals in the database when analyseGoals is called", async () => {
-    const handler = new DefaultGoalHandler();
+  it("should have a handleAnalysis method", () => {
+    expect(typeof handler.handleAnalysis).toBe("function");
+  });
+
+  it("should create a list of all goals in the database when handleAnalysis is called", async () => {
     (Goal.find as jest.Mock).mockResolvedValueOnce([
       { title: "Learn TypeScript" },
       { title: "Ship the project" },
     ]);
+    jest
+      .spyOn(goalAnalysisService, "analyseNextGoal")
+      .mockResolvedValue(undefined);
 
-    await handler.analyseGoals();
+    await handler.handleAnalysis();
 
     expect(Goal.find).toHaveBeenCalledWith({});
+    expect(goalAnalysisService.hasPendingGoals()).toBe(true);
   });
 
-  it("should create a timestamped document when analyseGoals is called", async () => {
-    const handler = new DefaultGoalHandler();
+  it("starts analysis without waiting for the AI response", async () => {
     (Goal.find as jest.Mock).mockResolvedValueOnce([
       { title: "Learn TypeScript" },
-      { title: "Ship the project" },
     ]);
+    const analyseNextGoal = jest
+      .spyOn(goalAnalysisService, "analyseNextGoal")
+      .mockResolvedValue(undefined);
 
-    const result = await handler.analyseGoals();
-    
-    expect(result).toHaveProperty("timestamp");
-    expect(result).toHaveProperty("Learn TypeScript");
-    expect(result).toHaveProperty("Ship the project");
+    await handler.handle("analyse");
+
+    expect(analyseNextGoal).toHaveBeenCalledTimes(1);
   });
 });

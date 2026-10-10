@@ -74,3 +74,41 @@ Return format requirements:
 Output example format:
 Skill A, Skill B, Skill C`;
 };
+
+export const buildGoalAnalysisPrompt = (
+  goal: string,
+  tasks: string[],
+): string => {
+  const safeGoal = validateTaskDescription(goal);
+
+  return `You are a highly conservative evaluator matching completed tasks to a specific goal. Precision is more important than finding matches. When evidence is insufficient, exclude the task.
+
+You will be given a client profile, one goal, and a list of completed task descriptions. Select only tasks whose descriptions provide clear, direct evidence of a capability that is materially useful for achieving the goal.
+
+Client profile:
+${clientProfile}
+
+Goal description:
+${safeGoal}
+
+Completed tasks:
+${tasks.join("\n")}
+
+Strict matching rules:
+- Judge every task independently against the specific goal, using the client profile only as context.
+- Include a task only when its description itself gives concrete evidence of a capability the goal requires or directly depends on.
+- A shared subject, tool, industry, broad theme, or vague transferability is NOT enough to qualify a task.
+- Do not infer what the person learned, intended, or achieved beyond what the task description explicitly states.
+- Do not include tasks that are merely adjacent, potentially useful, or relevant only through several speculative steps.
+- If the connection is uncertain, indirect, or depends on an assumption, exclude the task. It is correct to return no matches.
+- Do not lower this threshold to provide a more complete-looking answer.
+
+Return format requirements:
+- Return ONLY the exact descriptions of qualifying tasks, copied verbatim from the input.
+- Return them as one comma-separated line, with no explanations, labels, numbering, or additional text.
+- If no task clearly qualifies, return an empty response. Do not write "none" or explain why.
+- Do NOT repeat the goal or client profile.
+
+Output example format:
+Exact task description A, Exact task description B`;
+};

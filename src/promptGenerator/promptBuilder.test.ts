@@ -1,5 +1,6 @@
 import {
   buildTaskAnalysisPrompt,
+  buildGoalAnalysisPrompt,
   buildTaskReviewPrompt,
   validateTaskDescription,
 } from "./promptBuilder";
@@ -57,5 +58,30 @@ describe("buildTaskReviewPrompt", () => {
     expect(prompt).toContain("Write authentication tests");
     expect(prompt).toContain("Testing, Security");
     expect(prompt).toContain("consistency context");
+  });
+});
+
+describe("buildGoalAnalysisPrompt", () => {
+  it("requires direct evidence and excludes uncertain or indirect matches", () => {
+    const prompt = buildGoalAnalysisPrompt("Become a backend engineer", [
+      "Build a REST API",
+      "Plan a birthday party",
+    ]);
+
+    expect(prompt).toContain(
+      "Precision is more important than finding matches",
+    );
+    expect(prompt).toContain("clear, direct evidence");
+    expect(prompt).toContain("If the connection is uncertain, indirect");
+    expect(prompt).toContain("Build a REST API");
+    expect(prompt).toContain("Plan a birthday party");
+  });
+
+  it("requires exact task descriptions and an empty response when there are no matches", () => {
+    const prompt = buildGoalAnalysisPrompt("Become a backend engineer", []);
+
+    expect(prompt).toContain("copied verbatim from the input");
+    expect(prompt).toContain("return an empty response");
+    expect(prompt).toContain('Do not write "none"');
   });
 });

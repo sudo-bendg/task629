@@ -7,6 +7,7 @@ import { Bot } from "./bot/bot";
 import { DefaultTaskHandler } from "./bot/handlers/defaultTaskHandler";
 import { DefaultGoalHandler } from "./bot/handlers/defaultGoalHandler";
 import { getConnection } from "./db/connect";
+import { GoalAnalysisService } from "./ai/goalAnalysisService";
 
 export const HOUR_IN_MS = 60 * 60 * 1000;
 
@@ -49,11 +50,15 @@ export const resolveAIProvider = (config: AppConfig): AI => {
 };
 
 export const startAnalysisLoop = (
-  service: Pick<TaskAnalysisService, "analyseNextTask">,
+  taskAnalysisService: Pick<TaskAnalysisService, "analyseNextTask">,
+  goalAnalysisService: GoalAnalysisService,
   intervalMs: number = HOUR_IN_MS,
 ): NodeJS.Timeout => {
   const runOnce = () => {
-    void service.analyseNextTask().catch(console.error);
+    if (goalAnalysisService.hasPendingGoals()) {
+      goalAnalysisService.analyseNextGoal().catch(console.error);
+    }
+    void taskAnalysisService.analyseNextTask().catch(console.error);
   };
 
   runOnce();
@@ -66,8 +71,12 @@ export const bootstrapApp = async (
 ): Promise<void> => {
   await getConnection(config.mongoConnectionString);
 
+  const goalAnalysisService = new GoalAnalysisService({
+    analyseGoal: (goalDescription, tasks) => ai.analyseGoal(goalDescription, tasks),
+  });
+
   const taskHandler = new DefaultTaskHandler();
-  const goalHandler = new DefaultGoalHandler();
+  const goalHandler = new DefaultGoalHandler(goalAnalysisService);
   const bot = new Bot(config.telegramBotKey, taskHandler, goalHandler);
 
   if (!bot) {
@@ -82,5 +91,5 @@ export const bootstrapApp = async (
   });
 
   await taskAnalysisService.analyseNextTask().catch(console.error);
-  startAnalysisLoop(taskAnalysisService);
+  startAnalysisLoop(taskAnalysisService, goalAnalysisService);
 };
