@@ -79,7 +79,12 @@ export class GoalAnalysisService {
   }
 
   async saveAnalysis(): Promise<void> {
-    await Analysis.create({ goals: this.analysisObject });
+    await Analysis.create({
+      goals: Object.entries(this.analysisObject).map(([goal, tasks]) => ({
+        goal,
+        tasks,
+      })),
+    });
   }
 
   hasPendingGoals(): boolean {

@@ -47,11 +47,12 @@ describe("GoalAnalysisService", () => {
       "Reviewed task",
     ]);
     expect(Analysis.create).toHaveBeenCalledWith({
-      goals: {
-        "Learn TypeScript": [
-          { description: "Completed task", id: completedTaskId },
-        ],
-      },
+      goals: [
+        {
+          goal: "Learn TypeScript",
+          tasks: [{ description: "Completed task", id: completedTaskId }],
+        },
+      ],
     });
     expect(service.hasPendingGoals()).toBe(false);
   });
