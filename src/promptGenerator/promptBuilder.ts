@@ -1,7 +1,7 @@
 import { clientProfile } from "./clientProfile";
 
 export const validateTaskDescription = (task: string): string => {
-  if (task === "") {
+  if (!task.trim()) {
     throw new Error("Task is empty");
   }
 
@@ -112,4 +112,17 @@ Return format requirements:
 Output example format:
 Exact task description A
 Exact task description B`;
+};
+
+export const buildGoalTaskMatchPrompt = (
+  goal: string,
+  task: string,
+): string => {
+  const safeGoal = validateTaskDescription(goal);
+  const safeTask = validateTaskDescription(task);
+
+  return `Decide whether this completed task provides clear, direct evidence of a capability materially useful for achieving the goal. Be conservative: shared topics or speculative relevance are not enough. Reply with only TRUE or FALSE.
+
+Goal: ${safeGoal}
+Task: ${safeTask}`;
 };

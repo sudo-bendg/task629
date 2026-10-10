@@ -18,7 +18,7 @@ describe("DefaultGoalHandler", () => {
     jest.clearAllMocks();
     jest.spyOn(console, "log").mockImplementation(() => undefined);
     goalAnalysisService = new GoalAnalysisService({
-      analyseGoal: jest.fn().mockResolvedValue([]),
+      taskDemonstratesGoal: jest.fn().mockResolvedValue(false),
     });
     handler = new DefaultGoalHandler(goalAnalysisService);
   });
@@ -92,7 +92,7 @@ describe("DefaultGoalHandler analysis", () => {
 
   beforeEach(() => {
     goalAnalysisService = new GoalAnalysisService({
-      analyseGoal: jest.fn().mockResolvedValue([]),
+      taskDemonstratesGoal: jest.fn().mockResolvedValue(false),
     });
     handler = new DefaultGoalHandler(goalAnalysisService);
   });
@@ -106,6 +106,9 @@ describe("DefaultGoalHandler analysis", () => {
       { title: "Learn TypeScript" },
       { title: "Ship the project" },
     ]);
+    const newAnalysis = jest
+      .spyOn(goalAnalysisService, "newAnalysis")
+      .mockResolvedValue(undefined);
     jest
       .spyOn(goalAnalysisService, "analyseNextGoal")
       .mockResolvedValue(undefined);
@@ -113,7 +116,10 @@ describe("DefaultGoalHandler analysis", () => {
     await handler.handleAnalysis();
 
     expect(Goal.find).toHaveBeenCalledWith({});
-    expect(goalAnalysisService.hasPendingGoals()).toBe(true);
+    expect(newAnalysis).toHaveBeenCalledWith([
+      { description: "Learn TypeScript" },
+      { description: "Ship the project" },
+    ]);
   });
 
   it("starts analysis without waiting for the AI response", async () => {
@@ -123,6 +129,7 @@ describe("DefaultGoalHandler analysis", () => {
     const analyseNextGoal = jest
       .spyOn(goalAnalysisService, "analyseNextGoal")
       .mockResolvedValue(undefined);
+    jest.spyOn(goalAnalysisService, "newAnalysis").mockResolvedValue(undefined);
 
     await handler.handle("analyse");
 

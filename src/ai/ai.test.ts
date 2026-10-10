@@ -1,6 +1,7 @@
 import {
   generateTaskAnalysisRequest,
   generateTaskReviewRequest,
+  generateGoalTaskMatchRequest,
 } from "../promptGenerator";
 import { AI } from "./ai";
 
@@ -81,5 +82,39 @@ describe("AI.reviewTask", () => {
       "Review Prompt",
       "strong-model",
     );
+  });
+});
+
+describe("AI.taskDemonstratesGoal", () => {
+  let testAI: TestAI;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    testAI = new TestAI();
+    (generateGoalTaskMatchRequest as jest.Mock).mockReturnValue("Match Prompt");
+  });
+
+  it.each([
+    ["TRUE", true],
+    [" false ", false],
+  ])("parses %s as %s", async (response, expected) => {
+    testAI.request.mockResolvedValue(response);
+
+    await expect(
+      testAI.taskDemonstratesGoal("Learn TypeScript", "Build a compiler"),
+    ).resolves.toBe(expected);
+    expect(generateGoalTaskMatchRequest).toHaveBeenCalledWith(
+      "Learn TypeScript",
+      "Build a compiler",
+    );
+    expect(testAI.request).toHaveBeenCalledWith("Match Prompt");
+  });
+
+  it("rejects responses that are not a plain true or false", async () => {
+    testAI.request.mockResolvedValue("Probably true");
+
+    await expect(
+      testAI.taskDemonstratesGoal("Learn TypeScript", "Build a compiler"),
+    ).rejects.toThrow("Invalid goal match response");
   });
 });
