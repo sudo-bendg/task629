@@ -105,10 +105,11 @@ Strict matching rules:
 
 Return format requirements:
 - Return ONLY the exact descriptions of qualifying tasks, copied verbatim from the input.
-- Return them as one comma-separated line, with no explanations, labels, numbering, or additional text.
+- Return each qualifying task on its own line, with no explanations, labels, numbering, bullets, or additional text.
 - If no task clearly qualifies, return an empty response. Do not write "none" or explain why.
 - Do NOT repeat the goal or client profile.
 
 Output example format:
-Exact task description A, Exact task description B`;
+Exact task description A
+Exact task description B`;
 };

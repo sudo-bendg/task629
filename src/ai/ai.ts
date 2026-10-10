@@ -59,7 +59,7 @@ export abstract class AI {
     return Array.from(
       new Set(
         response
-          .split(",")
+          .split("\n")
           .map((skill) => skill.trim())
           .filter((skill) => skill.length > 0),
       ),
