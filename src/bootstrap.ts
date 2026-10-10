@@ -72,7 +72,8 @@ export const bootstrapApp = async (
   await getConnection(config.mongoConnectionString);
 
   const goalAnalysisService = new GoalAnalysisService({
-    analyseGoal: (goalDescription, tasks) => ai.analyseGoal(goalDescription, tasks),
+    analyseGoal: (goalDescription, tasks) =>
+      ai.analyseGoal(goalDescription, tasks),
   });
 
   const taskHandler = new DefaultTaskHandler();

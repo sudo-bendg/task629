@@ -1,7 +1,7 @@
 import {
   buildTaskAnalysisPrompt,
   buildTaskReviewPrompt,
-  buildGoalAnalysisPrompt
+  buildGoalAnalysisPrompt,
 } from "./promptBuilder";
 
 const generateTaskAnalysisRequest = (task: string) => {
@@ -20,4 +20,8 @@ const generateTaskReviewRequest = (
   return buildTaskReviewPrompt(task, skills, otherTasks);
 };
 
-export { generateTaskAnalysisRequest, generateGoalAnalysisRequest, generateTaskReviewRequest };
+export {
+  generateTaskAnalysisRequest,
+  generateGoalAnalysisRequest,
+  generateTaskReviewRequest,
+};

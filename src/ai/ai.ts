@@ -1,7 +1,7 @@
 import {
   generateTaskAnalysisRequest,
   generateTaskReviewRequest,
-  generateGoalAnalysisRequest
+  generateGoalAnalysisRequest,
 } from "../promptGenerator";
 
 export abstract class AI {
