@@ -80,3 +80,36 @@ describe("DefaultGoalHandler", () => {
     );
   });
 });
+
+describe("DefaultGoalHandler analysis", async () => {
+  it("should have a analyseGoals method", () => {
+    const handler = new DefaultGoalHandler();
+    expect(typeof handler.analyseGoals).toBe("function");
+  });
+
+  it("should create a list of all goals in the database when analyseGoals is called", async () => {
+    const handler = new DefaultGoalHandler();
+    (Goal.find as jest.Mock).mockResolvedValueOnce([
+      { title: "Learn TypeScript" },
+      { title: "Ship the project" },
+    ]);
+
+    await handler.analyseGoals();
+
+    expect(Goal.find).toHaveBeenCalledWith({});
+  });
+
+  it("should create a timestamped document when analyseGoals is called", async () => {
+    const handler = new DefaultGoalHandler();
+    (Goal.find as jest.Mock).mockResolvedValueOnce([
+      { title: "Learn TypeScript" },
+      { title: "Ship the project" },
+    ]);
+
+    const result = await handler.analyseGoals();
+    
+    expect(result).toHaveProperty("timestamp");
+    expect(result).toHaveProperty("Learn TypeScript");
+    expect(result).toHaveProperty("Ship the project");
+  });
+});
