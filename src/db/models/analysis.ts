@@ -10,11 +10,13 @@ const AnalysedTaskSchema = new Schema(
 
 const AnalysisSchema = new Schema(
   {
-    goals: {
-      type: Map,
-      of: [AnalysedTaskSchema],
-      required: true,
-    },
+    goals: [
+      {
+        goal: { type: String, required: true },
+        tasks: [AnalysedTaskSchema],
+        _id: false,
+      },
+    ],
   },
   { timestamps: true },
 );
