@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { Goal } from "./goal";
+import { GoalAnalysisService } from "../../ai/goalAnalysisService";
 import { DefaultGoalHandler } from "../../bot/handlers/defaultGoalHandler";
 
 let mongoServer: MongoMemoryServer;
@@ -58,7 +59,9 @@ describe("DefaultGoalHandler integration", () => {
   let handler: DefaultGoalHandler;
 
   beforeEach(() => {
-    handler = new DefaultGoalHandler();
+    handler = new DefaultGoalHandler(
+      new GoalAnalysisService({ analyseGoal: jest.fn().mockResolvedValue([]) }),
+    );
     jest.spyOn(console, "log").mockImplementation(() => undefined);
   });
 

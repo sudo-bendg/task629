@@ -1,7 +1,10 @@
 import { GoalHandler } from "../bot";
 import { Goal } from "../../db/models/goal";
+import { GoalAnalysisService } from "../../ai/goalAnalysisService";
 
 class DefaultGoalHandler implements GoalHandler {
+  constructor(private readonly goalAnalysisService: GoalAnalysisService) {}
+
   async handle(message: string): Promise<void> {
     if (message.startsWith("set")) {
       const title = message.substring("set ".length).trim();
@@ -11,6 +14,8 @@ class DefaultGoalHandler implements GoalHandler {
       await this.handleRemoveGoal(title);
     } else if (message.startsWith("list")) {
       await this.handleListGoals();
+    } else if (message === "analyse" || message === "analyze") {
+      await this.handleAnalysis();
     } else {
       console.log(`Unknown goal command: ${message}`);
     }
@@ -30,6 +35,15 @@ class DefaultGoalHandler implements GoalHandler {
     const goals = await Goal.find({});
     console.log("Current goals:");
     goals.forEach((goal) => console.log(`- ${goal.title}`));
+  }
+
+  async handleAnalysis() {
+    const goals = await Goal.find({});
+    console.log("Starting goal analysis...");
+    await this.goalAnalysisService.newAnalysis(
+      goals.map((g) => ({ description: g.title })),
+    );
+    void this.goalAnalysisService.analyseNextGoal();
   }
 }
 

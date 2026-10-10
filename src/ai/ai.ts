@@ -1,6 +1,7 @@
 import {
   generateTaskAnalysisRequest,
   generateTaskReviewRequest,
+  generateGoalAnalysisRequest,
 } from "../promptGenerator";
 
 export abstract class AI {
@@ -39,6 +40,26 @@ export abstract class AI {
       new Set(
         response
           .split(",")
+          .map((skill) => skill.trim())
+          .filter((skill) => skill.length > 0),
+      ),
+    );
+  }
+
+  async analyseGoal(goal: string, tasks: string[]): Promise<string[]> {
+    let prompt = "";
+
+    try {
+      prompt = generateGoalAnalysisRequest(goal, tasks);
+    } catch (err) {
+      console.log(err);
+    }
+
+    const response = await this.request(prompt);
+    return Array.from(
+      new Set(
+        response
+          .split("\n")
           .map((skill) => skill.trim())
           .filter((skill) => skill.length > 0),
       ),

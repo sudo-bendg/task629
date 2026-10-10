@@ -176,4 +176,16 @@ describe("bot goal functionality", () => {
 
     expect(mockTaskHandler.handle).not.toHaveBeenCalled();
   });
+
+  describe("goal handler initiates goal analysis on request", () => {
+    test("goal handler handles list goals messages", async () => {
+      const mockCtx = {
+        message: { text: "/goal analyse" },
+      };
+
+      await bot.handleTelegramMessage(mockCtx);
+
+      expect(mockGoalHandler.handle).toHaveBeenCalledWith("analyse");
+    });
+  });
 });
