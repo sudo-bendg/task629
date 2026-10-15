@@ -6,6 +6,9 @@ const mockLaunch = jest.fn().mockResolvedValue(undefined);
 
 jest.mock("telegraf", () => {
   return {
+    Input: {
+      fromBuffer: jest.fn((source, filename) => ({ source, filename })),
+    },
     Telegraf: jest.fn().mockImplementation(() => {
       return {
         on: mockOn,
@@ -164,6 +167,31 @@ describe("bot goal functionality", () => {
 
       expect(mockGoalHandler.handle).toHaveBeenCalledWith("list");
     });
+  });
+
+  test("sends a generated report as an HTML document", async () => {
+    const replyWithDocument = jest.fn().mockResolvedValue(undefined);
+    mockGoalHandler.handle = jest.fn(async (message, sendReport) => {
+      if (message === "report" && sendReport) {
+        await sendReport("<html>report</html>");
+      }
+    });
+
+    await bot.handleTelegramMessage({
+      message: { text: "/goal report" },
+      replyWithDocument,
+    });
+
+    expect(mockGoalHandler.handle).toHaveBeenCalledWith(
+      "report",
+      expect.any(Function),
+    );
+    expect(replyWithDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filename: "goal-report.html",
+        source: Buffer.from("<html>report</html>", "utf8"),
+      }),
+    );
   });
 
   test("does not interfere with task handling when processing goal messages", async () => {

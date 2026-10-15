@@ -1,4 +1,4 @@
-import { Telegraf } from "telegraf";
+import { Input, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 
 export interface TaskHandler {
@@ -6,7 +6,10 @@ export interface TaskHandler {
 }
 
 export interface GoalHandler {
-  handle(message: string): Promise<void>;
+  handle(
+    message: string,
+    sendReport?: (html: string) => Promise<void>,
+  ): Promise<void>;
   handleNewGoal(goal: string): Promise<void>;
   handleRemoveGoal(goal: string): Promise<void>;
   handleListGoals(): Promise<void>;
@@ -14,6 +17,9 @@ export interface GoalHandler {
 
 export interface TextMessageContext {
   message: { text?: string };
+  replyWithDocument?: (
+    document: ReturnType<typeof Input.fromBuffer>,
+  ) => Promise<unknown>;
 }
 
 export class Bot {
@@ -45,7 +51,20 @@ export class Bot {
 
     if (text.startsWith("/goal")) {
       const message = text.substring("/goal ".length).trim();
-      await this.goalHandler.handle(message);
+      if (message === "report") {
+        await this.goalHandler.handle(message, async (html) => {
+          if (!ctx.replyWithDocument) {
+            throw new Error(
+              "Cannot send the report without a Telegram reply context",
+            );
+          }
+          await ctx.replyWithDocument(
+            Input.fromBuffer(Buffer.from(html, "utf8"), "goal-report.html"),
+          );
+        });
+      } else {
+        await this.goalHandler.handle(message);
+      }
     } else {
       await this.taskHandler.handle(text);
     }
