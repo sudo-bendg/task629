@@ -1,11 +1,15 @@
 import { GoalHandler } from "../bot";
 import { Goal } from "../../db/models/goal";
 import { GoalAnalysisService } from "../../ai/goalAnalysisService";
+import { generateReport } from "../../reporter/reporter";
 
 class DefaultGoalHandler implements GoalHandler {
   constructor(private readonly goalAnalysisService: GoalAnalysisService) {}
 
-  async handle(message: string): Promise<void> {
+  async handle(
+    message: string,
+    sendReport?: (html: string) => Promise<void>,
+  ): Promise<void> {
     if (message.startsWith("set")) {
       const title = message.substring("set ".length).trim();
       await this.handleNewGoal(title);
@@ -16,6 +20,11 @@ class DefaultGoalHandler implements GoalHandler {
       await this.handleListGoals();
     } else if (message === "analyse" || message === "analyze") {
       await this.handleAnalysis();
+    } else if (message === "report") {
+      if (!sendReport) {
+        throw new Error("A report delivery callback is required");
+      }
+      await sendReport(await generateReport());
     } else {
       console.log(`Unknown goal command: ${message}`);
     }

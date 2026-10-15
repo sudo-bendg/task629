@@ -2,6 +2,12 @@ import { Goal } from "../../db/models/goal";
 import { GoalAnalysisService } from "../../ai/goalAnalysisService";
 import { DefaultGoalHandler } from "./defaultGoalHandler";
 
+jest.mock("../../reporter/reporter", () => ({
+  generateReport: jest.fn(),
+}));
+
+import { generateReport } from "../../reporter/reporter";
+
 jest.mock("../../db/models/goal", () => ({
   Goal: {
     create: jest.fn(),
@@ -83,6 +89,28 @@ describe("DefaultGoalHandler", () => {
     await expect(handler.handleListGoals()).rejects.toThrow(
       "Database read failed",
     );
+  });
+
+  it("generates and delivers a report", async () => {
+    (generateReport as jest.Mock).mockResolvedValueOnce("<html>report</html>");
+    const sendReport = jest.fn().mockResolvedValue(undefined);
+
+    await handler.handle("report", sendReport);
+
+    expect(generateReport).toHaveBeenCalledTimes(1);
+    expect(sendReport).toHaveBeenCalledWith("<html>report</html>");
+  });
+
+  it("propagates report-generation errors", async () => {
+    (generateReport as jest.Mock).mockRejectedValueOnce(
+      new Error("No analysis found"),
+    );
+    const sendReport = jest.fn().mockResolvedValue(undefined);
+
+    await expect(handler.handle("report", sendReport)).rejects.toThrow(
+      "No analysis found",
+    );
+    expect(sendReport).not.toHaveBeenCalled();
   });
 });
 
