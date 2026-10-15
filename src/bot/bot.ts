@@ -6,6 +6,10 @@ export interface TaskHandler {
 }
 
 export interface GoalHandler {
+  /**
+   * Handles a goal command without the `/goal` prefix.
+   * @param sendReport - Callback for delivering generated HTML for `report`.
+   */
   handle(
     message: string,
     sendReport?: (html: string) => Promise<void>,
@@ -41,6 +45,14 @@ export class Bot {
     this.bot.launch();
   }
 
+  /**
+   * Routes text starting with `/goal` to the goal handler and other text to the
+   * task handler; ignores missing or empty text. For `report`, supplies a callback
+   * that replies with a UTF-8 HTML document named `goal-report.html`.
+   *
+   * @throws If report delivery is attempted without `ctx.replyWithDocument`.
+   * Handler and document delivery errors also propagate to the caller.
+   */
   async handleTelegramMessage(ctx: TextMessageContext): Promise<void> {
     const text = ctx.message.text;
 

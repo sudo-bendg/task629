@@ -1,5 +1,6 @@
 import { Analysis } from "../db/models/analysis";
 
+/** Escapes ampersands, angle brackets, and both quote characters for HTML. */
 const escapeHtml = (value: string): string =>
   value
     .replaceAll("&", "&amp;")
@@ -8,6 +9,13 @@ const escapeHtml = (value: string): string =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
+/**
+ * Reads the most recently created saved analysis, regardless of completion status.
+ * @returns A complete HTML document with escaped goal titles, statuses, and only
+ * `MATCHED` candidate descriptions. Goals without matches show an empty message.
+ * @throws If no saved analysis exists (`No analysis found`). Database query errors
+ * also propagate to the caller.
+ */
 export const generateReport = async (): Promise<string> => {
   const analysis = await Analysis.findOne().sort({ createdAt: -1 }).lean();
   if (!analysis) {

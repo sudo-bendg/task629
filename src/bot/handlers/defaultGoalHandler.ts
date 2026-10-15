@@ -6,6 +6,17 @@ import { generateReport } from "../../reporter/reporter";
 class DefaultGoalHandler implements GoalHandler {
   constructor(private readonly goalAnalysisService: GoalAnalysisService) {}
 
+  /**
+   * Dispatches goal creation, removal, listing, analysis, or report delivery.
+   * Unknown commands resolve without performing a goal operation.
+   *
+   * @param message - Command without `/goal`; `set`, `remove`, and `list` match
+   * prefixes, while `analyse`, `analyze`, and `report` require exact matches.
+   * @param sendReport - Required for `report`; receives the generated HTML and
+   * is awaited. Ignored for other commands.
+   * @throws If `report` has no delivery callback. Errors from awaited goal
+   * operations, report generation, and report delivery also propagate.
+   */
   async handle(
     message: string,
     sendReport?: (html: string) => Promise<void>,
