@@ -15,6 +15,10 @@ export interface GoalHandler {
   handleListGoals(): Promise<void>;
 }
 
+export interface ConfigHandler {
+  handle(operation: string, attribute: string, value: string): Promise<void>;
+}
+
 export interface TextMessageContext {
   message: { text?: string };
   replyWithDocument?: (
@@ -26,15 +30,18 @@ export class Bot {
   bot: Telegraf;
   taskHandler: TaskHandler;
   goalHandler: GoalHandler;
+  configHandler: ConfigHandler;
 
   constructor(
     botToken: string,
     taskHandler: TaskHandler,
     goalHandler: GoalHandler,
+    configHandler: ConfigHandler,
   ) {
     this.bot = new Telegraf(botToken);
     this.taskHandler = taskHandler;
     this.goalHandler = goalHandler;
+    this.configHandler = configHandler;
 
     this.bot.on(message("text"), this.handleTelegramMessage.bind(this));
 
@@ -49,7 +56,25 @@ export class Bot {
       return;
     }
 
-    if (text.startsWith("/goal")) {
+    if (/^\/config(?:\s|$)/.test(text)) {
+      const command = text
+        .trim()
+        .match(/^\/config\s+(\S+)\s+(\S+)(?:\s+([\s\S]*))?$/);
+      if (!command) {
+        console.log(`Invalid config command: ${text}`);
+        return;
+      }
+
+      const operation = command[1];
+      const attribute = command[2];
+      if (!operation || !attribute) {
+        console.log(`Invalid config command: ${text}`);
+        return;
+      }
+
+      const value = command[3] ?? "";
+      await this.configHandler.handle(operation, attribute, value.trim());
+    } else if (text.startsWith("/goal")) {
       const message = text.substring("/goal ".length).trim();
       if (message === "report") {
         await this.goalHandler.handle(message, async (html) => {
