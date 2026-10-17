@@ -135,12 +135,28 @@ describe("bot", () => {
     expect(mockTaskHandler.handle).not.toHaveBeenCalled();
   });
 
-  test("does not pass malformed config commands to the task handler", async () => {
-    await bot.handleTelegramMessage(createMockContext("/config set"));
+  test("parses config commands with irregular whitespace", async () => {
+    await bot.handleTelegramMessage(
+      createMockContext("/config   set   profile   An experienced engineer"),
+    );
 
-    expect(mockConfigHandler.handle).not.toHaveBeenCalled();
+    expect(mockConfigHandler.handle).toHaveBeenCalledWith(
+      "set",
+      "profile",
+      "An experienced engineer",
+    );
     expect(mockTaskHandler.handle).not.toHaveBeenCalled();
   });
+
+  test.each(["/config", "/config set", "/config set profile"])(
+    "ignores malformed config command %s",
+    async (command) => {
+      await bot.handleTelegramMessage(createMockContext(command));
+
+      expect(mockConfigHandler.handle).not.toHaveBeenCalled();
+      expect(mockTaskHandler.handle).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("bot goal functionality", () => {

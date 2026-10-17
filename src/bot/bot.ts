@@ -1,5 +1,6 @@
 import { Input, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
+import { generateHelpMessage } from "../promptGenerator";
 
 export interface TaskHandler {
   handle(task: string): Promise<void>;
@@ -24,6 +25,7 @@ export interface TextMessageContext {
   replyWithDocument?: (
     document: ReturnType<typeof Input.fromBuffer>,
   ) => Promise<unknown>;
+  reply?: (text: string) => Promise<unknown>;
 }
 
 export class Bot {
@@ -56,24 +58,28 @@ export class Bot {
       return;
     }
 
-    if (/^\/config(?:\s|$)/.test(text)) {
-      const command = text
-        .trim()
-        .match(/^\/config\s+(\S+)\s+(\S+)(?:\s+([\s\S]*))?$/);
+    if (text.startsWith("/help")) {
+      const helpMessage = generateHelpMessage();
+      if (ctx.reply) {
+        await ctx.reply(helpMessage);
+      } else {
+        console.log("Cannot send the help message without a Telegram reply context");
+      }
+    } else if (text.startsWith("/config")) {
+      const command = text.substring("/config ".length).trim();
       if (!command) {
         console.log(`Invalid config command: ${text}`);
         return;
       }
 
-      const operation = command[1];
-      const attribute = command[2];
-      if (!operation || !attribute) {
+      const [operation, attribute, ...valueParts] = command.split(/\s+/);
+      if (!operation || !attribute || valueParts.length === 0) {
         console.log(`Invalid config command: ${text}`);
         return;
       }
 
-      const value = command[3] ?? "";
-      await this.configHandler.handle(operation, attribute, value.trim());
+      const value = valueParts.join(" ");
+      await this.configHandler.handle(operation, attribute, value);
     } else if (text.startsWith("/goal")) {
       const message = text.substring("/goal ".length).trim();
       if (message === "report") {
@@ -92,6 +98,8 @@ export class Bot {
       }
     } else {
       await this.taskHandler.handle(text);
+      // add tick sticker reaction to indicate task has been received and is being processed
+
     }
   }
 }
