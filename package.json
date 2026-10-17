@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/sudo-bendg/task629.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Benjamin Godfrey",
   "type": "commonjs",
   "main": "dist/src/index.js",
