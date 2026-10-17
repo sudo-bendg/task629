@@ -6,6 +6,7 @@ import { Ollama } from "./ai/ollama/ollama";
 import { Bot } from "./bot/bot";
 import { DefaultTaskHandler } from "./bot/handlers/defaultTaskHandler";
 import { DefaultGoalHandler } from "./bot/handlers/defaultGoalHandler";
+import { DefaultConfigHandler } from "./bot/handlers/defaultConfigHandler";
 import { getConnection } from "./db/connect";
 import { GoalAnalysisService } from "./ai/goalAnalysisService";
 
@@ -77,7 +78,13 @@ export const bootstrapApp = async (
 
   const taskHandler = new DefaultTaskHandler();
   const goalHandler = new DefaultGoalHandler(goalAnalysisService);
-  const bot = new Bot(config.telegramBotKey, taskHandler, goalHandler);
+  const configHandler = new DefaultConfigHandler();
+  const bot = new Bot(
+    config.telegramBotKey,
+    taskHandler,
+    goalHandler,
+    configHandler,
+  );
 
   if (!bot) {
     console.log("Issue starting bot");

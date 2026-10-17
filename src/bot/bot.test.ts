@@ -1,5 +1,11 @@
 import { Telegraf } from "telegraf";
-import { Bot, GoalHandler, TaskHandler, TextMessageContext } from "./bot";
+import {
+  Bot,
+  ConfigHandler,
+  GoalHandler,
+  TaskHandler,
+  TextMessageContext,
+} from "./bot";
 
 const mockOn = jest.fn();
 const mockLaunch = jest.fn().mockResolvedValue(undefined);
@@ -29,6 +35,7 @@ const TOKEN = "123";
 describe("bot", () => {
   let mockTaskHandler: TaskHandler;
   let mockGoalHandler: GoalHandler;
+  let mockConfigHandler: ConfigHandler;
   let bot: Bot;
 
   beforeEach(() => {
@@ -44,7 +51,10 @@ describe("bot", () => {
       handleRemoveGoal: jest.fn().mockResolvedValue(undefined),
       handleListGoals: jest.fn().mockResolvedValue(undefined),
     };
-    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler);
+    mockConfigHandler = {
+      handle: jest.fn().mockResolvedValue(undefined),
+    };
+    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler, mockConfigHandler);
   });
 
   test("initializes and launches the telegram bot", () => {
@@ -109,11 +119,50 @@ describe("bot", () => {
     expect(mockTaskHandler.handle).toHaveBeenCalledWith("Task 1");
     expect(mockTaskHandler.handle).toHaveBeenCalledWith("Task 2");
   });
+
+  test("routes config commands as operation, attribute, and value", async () => {
+    const profile = "An experienced software engineer";
+
+    await bot.handleTelegramMessage(
+      createMockContext(`/config set profile ${profile}`),
+    );
+
+    expect(mockConfigHandler.handle).toHaveBeenCalledWith(
+      "set",
+      "profile",
+      profile,
+    );
+    expect(mockTaskHandler.handle).not.toHaveBeenCalled();
+  });
+
+  test("parses config commands with irregular whitespace", async () => {
+    await bot.handleTelegramMessage(
+      createMockContext("/config   set   profile   An experienced engineer"),
+    );
+
+    expect(mockConfigHandler.handle).toHaveBeenCalledWith(
+      "set",
+      "profile",
+      "An experienced engineer",
+    );
+    expect(mockTaskHandler.handle).not.toHaveBeenCalled();
+  });
+
+  test.each(["/config", "/config set", "/config set profile"])(
+    "ignores malformed config command %s",
+    async (command) => {
+      await bot.handleTelegramMessage(createMockContext(command));
+
+      expect(mockConfigHandler.handle).not.toHaveBeenCalled();
+      expect(mockTaskHandler.handle).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("bot goal functionality", () => {
   let mockTaskHandler: TaskHandler;
   let mockGoalHandler: GoalHandler;
+  let mockConfigHandler: ConfigHandler;
   let bot: Bot;
 
   beforeEach(() => {
@@ -130,7 +179,10 @@ describe("bot goal functionality", () => {
       handleRemoveGoal: jest.fn().mockResolvedValue(undefined),
       handleListGoals: jest.fn().mockResolvedValue(undefined),
     };
-    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler);
+    mockConfigHandler = {
+      handle: jest.fn().mockResolvedValue(undefined),
+    };
+    bot = new Bot(TOKEN, mockTaskHandler, mockGoalHandler, mockConfigHandler);
   });
 
   test("goal handler handles new goal messages", async () => {
