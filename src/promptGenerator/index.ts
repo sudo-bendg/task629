@@ -39,12 +39,12 @@ Available commands:
 
 Alternatively, you can send any other message to the bot, and it will attempt to process it as a task.
 `;
-}
+};
 
 export {
   generateTaskAnalysisRequest,
   generateGoalAnalysisRequest,
   generateGoalTaskMatchRequest,
   generateTaskReviewRequest,
-  generateHelpMessage
+  generateHelpMessage,
 };

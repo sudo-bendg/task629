@@ -63,7 +63,9 @@ export class Bot {
       if (ctx.reply) {
         await ctx.reply(helpMessage);
       } else {
-        console.log("Cannot send the help message without a Telegram reply context");
+        console.log(
+          "Cannot send the help message without a Telegram reply context",
+        );
       }
     } else if (text.startsWith("/config")) {
       const command = text.substring("/config ".length).trim();
@@ -99,7 +101,6 @@ export class Bot {
     } else {
       await this.taskHandler.handle(text);
       // add tick sticker reaction to indicate task has been received and is being processed
-
     }
   }
 }
